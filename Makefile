@@ -12,7 +12,7 @@ OUTPUT := $(MAIN)
 # Headers
 HEAD := $(wildcard *.hpp)
 
-.PHONY: all, clean
+.PHONY: all clean
 
 all : $(OUTPUT)
 
@@ -21,8 +21,8 @@ $(OUTPUT): $(MAIN).o
 	$(CC) $(CFLAGS) -o $(MAIN) $(wildcard *.o) $(LDFLAGS)
 
 # Binary file handling
-$(MAIN).o: $(wildcard *.c) $(HEAD)
-	$(CC) $(CFLAGS) -c $(MAIN).cpp
+$(MAIN).o: $(wildcard *.cpp) $(HEAD)
+	$(CC) $(CFLAGS) -c $(wildcard *.cpp)
 
 # Deletes all previously compiled executables and binaries
 clean:
