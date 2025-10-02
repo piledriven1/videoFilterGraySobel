@@ -6,19 +6,25 @@
 #include "extFrame.hpp"
 
 int main(int argc, char* argv[]) {
+    if(argc < 4) {
+        std::cerr << "Include the video, and second you want the frame, and name." << std::endl <<
+        "./extFrame <VIDEO_FILE> <NAME> <NUM_OF_SEC>" << std::endl;
+        return 1;
+    }
+    if(argc > 4) {
+        std::cerr << "Too many arguments" << std::endl <<
+        "./extFrame <VIDEO_FILE> <NAME> <NUM_OF_SEC>" << std::endl;
+        return 1;
+    }
+
     cv::Mat frame;
     cv::VideoCapture video;
-
-    if(argc < 3) {
-        std::cerr << "Define the variable and seconds.\n" <<
-        "./extFrame <VIDEO_FILE> <NUM_OF_SEC>" << std::endl;
-    }
 
     // Open video specified
     video.open("demo.mp4", 0);
 
     double fps = video.get(cv::CAP_PROP_FPS);
-    int maxFrame = video.isOpened() ? 3 * (int)fps : (int)(fps * atoi(argv[2]));
+    int maxFrame = video.isOpened() ? 3 * (int)fps : (int)(fps * atoi(argv[3]));
 
     // Go through and cycle through
     for(int i = 0; i < maxFrame; i++) {
@@ -31,8 +37,12 @@ int main(int argc, char* argv[]) {
     }
 
     // Write to a demo file
-    cv::imwrite("demo.jpg", frame);
+    std::string name = argv[2];
+    saveImage(name, frame);
     grayscale(frame);
+
+    video.release();
+    frame.release();
 
     return 0;
 }
@@ -47,13 +57,11 @@ void grayscale(const cv::Mat &frame) {
     const int wG = 149; // 0.587 * 256 ~ 150.272 ~ 150 - 1 = 149
     const int wR = 76;  // 0.299 * 256 ~ 76.544 ~ 77 - 1 = 76
 
-    int x = 0;
-    int y = 0;
-    for(; y < frame.rows; y++) {
+    for(int y = 0; y < frame.rows; y++) {
         const cv::Vec3b* src = frame.ptr<cv::Vec3b>(y);
         uint8_t* dst = gray.ptr<uint8_t>(y);
 
-        for(; x < frame.cols; x++) {
+        for(int x = 0; x < frame.cols; x++) {
             const uint8_t B = src[x][0];
             const uint8_t G = src[x][1];
             const uint8_t R = src[x][2];
@@ -63,5 +71,13 @@ void grayscale(const cv::Mat &frame) {
         }
     }
     // create output file
-    cv::imwrite("demo_gray.jpg", frame);
+    saveImage("gray", gray);
+    gray.release();
+
+    return;
+}
+
+void saveImage(std::string name, const cv::Mat &frame) {
+    cv::imwrite(name + ".jpg", frame);
+    return;
 }
