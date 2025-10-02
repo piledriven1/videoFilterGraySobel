@@ -1,7 +1,7 @@
 # Compiler
 CC := g++
 # Compiler flags
-CFLAGS := -Wall -Werror -pedantic -g $(shell pkg-config --cflags opencv4)
+CFLAGS := -O0 -Wall -Werror -pedantic -g $(shell pkg-config --cflags opencv4)
 # Linker flags
 LDFLAGS := $(shell pkg-config --libs opencv4)
 
@@ -10,9 +10,9 @@ MAIN := extFrame
 # Binary output name
 OUTPUT := $(MAIN)
 # Headers
-HEAD := $(wildcard *.h)
+HEAD := $(wildcard *.hpp)
 
-.PHONY: all, grey, sobel, clean
+.PHONY: all, clean
 
 all : $(OUTPUT)
 
