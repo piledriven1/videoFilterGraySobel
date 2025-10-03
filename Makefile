@@ -7,6 +7,8 @@ LDFLAGS := $(shell pkg-config --libs opencv4)
 
 # Name of the compiled program
 MAIN := extFrame
+SOURCES := $(wildcard *.cpp) $(wildcard *.c)
+OBJECTS := $(SOURCES:.cpp=.o)
 # Binary output name
 OUTPUT := $(MAIN)
 # Headers
@@ -17,12 +19,12 @@ HEAD := $(wildcard *.hpp)
 all : $(OUTPUT)
 
 # Executable file handling
-$(OUTPUT): $(MAIN).o
-	$(CC) $(CFLAGS) -o $(MAIN) $(wildcard *.o) $(LDFLAGS)
+$(OUTPUT): $(OBJECTS)
+	$(CC) $(CFLAGS) -o $(MAIN) $(OBJECTS) $(LDFLAGS)
 
 # Binary file handling
-$(MAIN).o: $(wildcard *.cpp) $(HEAD)
-	$(CC) $(CFLAGS) -c $(wildcard *.cpp)
+%.o: %.cpp $(HEAD)
+	$(CC) $(CFLAGS) -c $< -o $@
 
 # Deletes all previously compiled executables and binaries
 clean:
