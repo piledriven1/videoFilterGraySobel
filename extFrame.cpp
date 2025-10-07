@@ -89,21 +89,22 @@ cv::Mat grayscale(const cv::Mat &frame, std::string name) {
 }
 
 void sobelFilter(const cv::Mat &frame, std::string name) {
-    // Check if provided img is a grayscale
+    // Checks for a single channel 8-bit greyscale input
     CV_Assert(frame.type() == CV_8UC1);
-    // Allocate memory for final output
+    // Allocate memory for output image (8-bit)
     cv::Mat sobel(frame.rows, frame.cols, CV_8UC1);
 
     // Define matrices for sobel computation
-    int gx[3][3] = {{-1, 0, 1}, {-2, 0, 2}, {-1, 0, 1}};    // For vertical
-    int gy[3][3] = {{-1, -2, -1}, {0, 0, 0}, {1, 2, 1}};    // For horizontal
+    int gx[3][3] = {{-1, 0, 1}, {-2, 0, 2}, {-1, 0, 1}};
+    int gy[3][3] = {{-1, -2, -1}, {0, 0, 0}, {1, 2, 1}};
 
-    for (int y = 1; y < frame.rows - 1; y++) {      // NOTE: Scans vertical
-        for (int x = 1; x < frame.cols - 1; x++) {  // NOTE: Scans horizontal
+    // Loop to process interior pixels only. Skips borders. 
+    for (int y = 1; y < frame.rows - 1; y++) {      // Scans vertically
+        for (int x = 1; x < frame.cols - 1; x++) {  // Scans horizontal
             int gxSum = 0;
             int gySum = 0;
 
-            // 3×3 neighborhood
+            // Compute 3x3 convolution with Sobel matrices and neighboring pixels
             for (int j = -1; j <= 1; j++) {
                 for (int k = -1; k <= 1; k++) {
                     int p = static_cast<int>(frame.at<uint8_t>(y + j, x + k));
@@ -113,8 +114,7 @@ void sobelFilter(const cv::Mat &frame, std::string name) {
                 }
             }
 
-            // Compute magnitude and ensure in range of 0-255
-            // Rough equivalent of sqrt(gxSum^2 + gySum^2) else set as 255
+            // Compute magnitude using (|Gx|+|Gy|) and clamp range to [0, 255]
             int magnitude = (std::abs(gxSum) + std::abs(gySum) > 255) ?
                             255 : std::abs(gxSum) + std::abs(gySum);
 
