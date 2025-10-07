@@ -58,14 +58,14 @@ int main(int argc, char* argv[]) {
 }
 
 cv::Mat grayscale(const cv::Mat &frame, std::string name) {
-    // Apply grayscale using BT.601 formula
     CV_Assert(frame.type() == CV_8UC3);
     cv::Mat gray(frame.rows, frame.cols, CV_8UC1);
-    // Y = 0.114B + 0.587G + 0.299R
-    // Modify BT.2601 formula values to match 8-bit value range (0-255)
-    const int wB = 29;  // 0.114 * 256 = 29.184 ~ 29
-    const int wG = 150; // 0.587 * 256 ~ 150.272 ~ 150
-    const int wR = 77;  // 0.299 * 256 ~ 76.544 ~ 77
+    // Apply grayscale using BT.709 formula
+    // Y = 0.2126R + 0.7152G + 0.0722B
+    // Modify BT.709 formula values to match 8-bit value range (0-255)
+    const int wB = 18;  // 0.0722 * 256 = 18.4832 ~ 18
+    const int wG = 183; // 0.7152 * 256 ~ 183.0912 ~ 183
+    const int wR = 54;  // 0.2126 * 256 ~ 54.4256 ~ 54
 
     for(int y = 0; y < frame.rows; y++) {
         const cv::Vec3b* src = frame.ptr<cv::Vec3b>(y);
@@ -98,8 +98,8 @@ void sobelFilter(const cv::Mat &frame, std::string name) {
     int gx[3][3] = {{-1, 0, 1}, {-2, 0, 2}, {-1, 0, 1}};    // For vertical
     int gy[3][3] = {{-1, -2, -1}, {0, 0, 0}, {1, 2, 1}};    // For horizontal
 
-    for (int y = 1; y < frame.rows - 1; y++) {      // NOTE: Scans vertically
-        for (int x = 1; x < frame.cols - 1; x++) {  // NOTE: Scans horizontally  
+    for (int y = 1; y < frame.rows - 1; y++) {      // NOTE: Scans vertical
+        for (int x = 1; x < frame.cols - 1; x++) {  // NOTE: Scans horizontal
             int gxSum = 0;
             int gySum = 0;
 
