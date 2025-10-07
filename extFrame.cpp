@@ -106,7 +106,7 @@ void sobelFilter(const cv::Mat &frame, std::string name) {
             // 3×3 neighborhood
             for (int j = -1; j <= 1; j++) {
                 for (int k = -1; k <= 1; k++) {
-                    int p = static_cast<int>(frame.at<uchar>(y + j, x + k));
+                    int p = static_cast<int>(frame.at<uint8_t>(y + j, x + k));
 
                     gxSum += p * gx[j + 1][k + 1];
                     gySum += p * gy[j + 1][k + 1];
@@ -118,7 +118,7 @@ void sobelFilter(const cv::Mat &frame, std::string name) {
             int magnitude = (std::abs(gxSum) + std::abs(gySum) > 255) ?
                             255 : std::abs(gxSum) + std::abs(gySum);
 
-            sobel.at<uchar>(y,x) = static_cast<uchar>(magnitude);
+            sobel.at<uint8_t>(y,x) = static_cast<uint8_t>(magnitude);
         }
     }
 
