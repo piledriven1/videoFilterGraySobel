@@ -11,28 +11,28 @@ int main(int argc, char* argv[]) {
         "./extFrame <VIDEO_FILE> <VIDEO_TYPE> <NUM_OF_SEC>" << std::endl;
         return 1;
     }
-    if(strcmp(argv[2], "plain") && strcmp(argv[2], "gray") && strcmp(argv[2], "sobel")) {
+    if(strcmp(argv[2], "plain") && 
+            strcmp(argv[2], "gray") && 
+            strcmp(argv[2], "sobel")) {
         std::cerr << "Invalid name" << std::endl << argv[2] <<
                     " != plain || gray || sobel" << std::endl;
         return 1;
     }
 
     cv::VideoCapture video;
+    std::string name = argv[1];
 
     // Open video specified
-    video.open(argv[1], 0);
+    video.open(name, 0);
 
     // Find the FPS as an integer value
     int fps = (int)video.get(cv::CAP_PROP_FPS);
     int finalFrame = fps * atoi(argv[3]);
-    // int finalFrame = video.isOpened() ? 3 * fps : (fps * atoi(argv[3]));
 
     cv::Mat plain;
     cv::Mat gray;
     cv::Mat sobel;
 
-    std::string name = argv[1];
-    
     // Cycle through the video until the final frame is reached
     for(int i = 0; i < finalFrame; i++) {
         // Video must be read otherwise there will be no progress
