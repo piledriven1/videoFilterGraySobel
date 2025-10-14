@@ -1,63 +1,77 @@
-#include <opencv2/imgproc.hpp>
-#include <opencv4/opencv2/core.hpp>
-#include <opencv4/opencv2/videoio.hpp>
-#include <opencv4/opencv2/imgcodecs.hpp>
-#include <iostream>
-
 #include "extFrame.hpp"
 
 int main(int argc, char* argv[]) {
     if(argc < 4) {
-        std::cerr << "Not enough arguments" << 
-        std::endl <<"./extFrame <VIDEO_FILE> <NAME> <NUM_OF_SEC>" << std::endl;
+        std::cerr << "Not enough arguments" << std::endl <<
+        "./extFrame <VIDEO_FILE> <VIDEO_TYPE> <NUM_OF_SEC>" << std::endl;
         return 1;
     }
     if(argc > 4) {
         std::cerr << "Too many arguments" << std::endl <<
-        "./extFrame <VIDEO_FILE> <NAME> <NUM_OF_SEC>" << std::endl;
+        "./extFrame <VIDEO_FILE> <VIDEO_TYPE> <NUM_OF_SEC>" << std::endl;
+        return 1;
+    }
+    if(strcmp(argv[2], "plain") && strcmp(argv[2], "gray") && strcmp(argv[2], "sobel")) {
+        std::cerr << "Invalid name" << std::endl << argv[2] <<
+                    " != plain || gray || sobel" << std::endl;
         return 1;
     }
 
     cv::VideoCapture video;
 
     // Open video specified
-    // video.open("argv[1]", 0);
-    std::cout << "Overriding video choice of " << argv[1] <<
-    " with Rick Astley's Never Gonna Give You Up" << std::endl;
-
-    video.open("demo.mp4", 0);
+    video.open(argv[1], 0);
 
     // Find the FPS as an integer value
     int fps = (int)video.get(cv::CAP_PROP_FPS);
-    // int finalFrame = fps * atoi(argv[3]);
-    int finalFrame = video.isOpened() ? 3 * fps : (fps * atoi(argv[3]));
+    int finalFrame = fps * atoi(argv[3]);
+    // int finalFrame = video.isOpened() ? 3 * fps : (fps * atoi(argv[3]));
 
-    cv::Mat frame;
+    cv::Mat plain;
+    cv::Mat gray;
+    cv::Mat sobel;
 
+    std::string name = argv[1];
+    
     // Cycle through the video until the final frame is reached
     for(int i = 0; i < finalFrame; i++) {
         // Video must be read otherwise there will be no progress
-        video.read(frame);
-        if(frame.empty()) {
+        video.read(plain);
+        if(plain.empty()) {
             std::cerr << "Empty frame; input a valid time" << std::endl;
             return 1;
         }
+
+        // Reduce the amount of processing based on user argument
+        if(!strcmp(argv[2], "plain")) {
+            cv::imshow(name, plain);
+        }
+        else {
+            gray = grayscale(plain);
+            if(!strcmp(argv[2], "gray")) {
+                cv::imshow(name + "_grayscale", gray);
+            }
+            if(!strcmp(argv[2], "sobel")) {
+                sobel = sobelFilter(gray);
+                cv::imshow(name + "_sobel", sobel);
+            }
+        }
+        
+        cv::waitKey(1000 / fps);
     }
 
-    // Write to a demo file
-    std::string name = argv[2];
-    saveImage(frame, name);
-    cv::Mat gray = grayscale(frame, name);
-    sobelFilter(gray, name);
-
     // Cleanup
-    gray.release();
     video.release();
+    sobel.release();
+    gray.release();
+    plain.release();
+
+    cv::destroyAllWindows();
 
     return 0;
 }
 
-cv::Mat grayscale(const cv::Mat &frame, std::string name) {
+cv::Mat grayscale(const cv::Mat &frame) {
     CV_Assert(frame.type() == CV_8UC3);
     cv::Mat gray(frame.rows, frame.cols, CV_8UC1);
     // Apply grayscale using BT.709 formula
@@ -77,18 +91,15 @@ cv::Mat grayscale(const cv::Mat &frame, std::string name) {
             const uint8_t R = src[x][2];
 
             // Calculate for new value per pixel and divide by 256
-            dst[x] = 
+            dst[x] =
                 static_cast<uint8_t>(((wB * B) + (wG * G) + (wR * R)) >> 8);
         }
     }
 
-    // create output file
-    saveImage(gray, name + "_gray");
-
     return gray;
 }
 
-void sobelFilter(const cv::Mat &frame, std::string name) {
+cv::Mat sobelFilter(const cv::Mat &frame) {
     // Checks for a single channel 8-bit greyscale input
     CV_Assert(frame.type() == CV_8UC1);
     // Allocate memory for output image (8-bit)
@@ -98,7 +109,7 @@ void sobelFilter(const cv::Mat &frame, std::string name) {
     int gx[3][3] = {{-1, 0, 1}, {-2, 0, 2}, {-1, 0, 1}};
     int gy[3][3] = {{-1, -2, -1}, {0, 0, 0}, {1, 2, 1}};
 
-    // Loop to process interior pixels only. Skips borders. 
+    // Loop to process interior pixels only. Skips borders.
     for (int y = 1; y < frame.rows - 1; y++) {      // Scans vertically
         for (int x = 1; x < frame.cols - 1; x++) {  // Scans horizontal
             int gxSum = 0;
@@ -122,11 +133,7 @@ void sobelFilter(const cv::Mat &frame, std::string name) {
         }
     }
 
-    // Create output file
-    saveImage(sobel, name + "_sobel");
-    sobel.release();
-
-    return;
+    return sobel;
 }
 
 void saveImage(const cv::Mat &frame, std::string name) {

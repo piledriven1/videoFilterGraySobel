@@ -1,4 +1,5 @@
 # cpe442-tutorial2
-OpenCV Tutorial
 
-./extFrame demo.mp4 rr 4
+## OpenCV Tutorial
+
+This program is meant to be a tutorial to using OpenCV and add grayscale or Sobel filtering to a video file.

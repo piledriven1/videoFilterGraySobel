@@ -28,4 +28,4 @@ $(OUTPUT): $(OBJECTS)
 
 # Deletes all previously compiled executables and binaries
 clean:
-	rm *.jpg *.o $(MAIN)
+	rm *.o $(MAIN)
