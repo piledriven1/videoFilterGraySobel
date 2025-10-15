@@ -2,7 +2,7 @@
 #define EXTFRAME_HPP
 
 #include <iostream>
-#include <cstring>
+#include <string>
 
 #include <opencv4/opencv2/imgproc.hpp>
 #include <opencv4/opencv2/core.hpp>

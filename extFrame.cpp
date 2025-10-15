@@ -11,9 +11,10 @@ int main(int argc, char* argv[]) {
         "./extFrame <VIDEO_FILE> <VIDEO_TYPE> <NUM_OF_SEC>" << std::endl;
         return 1;
     }
-    if(strcmp(argv[2], "plain") && 
-            strcmp(argv[2], "gray") && 
-            strcmp(argv[2], "sobel")) {
+    std::string filter = argv[2];
+    if(filter.compare("plain") != 0 && 
+            filter.compare("gray") != 0 && 
+            filter.compare("sobel") != 0) {
         std::cerr << "Invalid name" << std::endl << argv[2] <<
                     " != plain || gray || sobel" << std::endl;
         return 1;
@@ -29,9 +30,7 @@ int main(int argc, char* argv[]) {
     int fps = (int)video.get(cv::CAP_PROP_FPS);
     int finalFrame = fps * atoi(argv[3]);
 
-    cv::Mat plain;
-    cv::Mat gray;
-    cv::Mat sobel;
+    cv::Mat plain, gray, sobel;
 
     // Cycle through the video until the final frame is reached
     for(int i = 0; i < finalFrame; i++) {
@@ -43,15 +42,15 @@ int main(int argc, char* argv[]) {
         }
 
         // Reduce the amount of processing based on user argument
-        if(!strcmp(argv[2], "plain")) {
+        if(filter.compare("plain") == 0) {
             cv::imshow(name, plain);
         }
         else {
             gray = grayscale(plain);
-            if(!strcmp(argv[2], "gray")) {
+            if(filter.compare("gray") == 0) {
                 cv::imshow(name + "_grayscale", gray);
             }
-            if(!strcmp(argv[2], "sobel")) {
+            if(filter.compare("sobel")) {
                 sobel = sobelFilter(gray);
                 cv::imshow(name + "_sobel", sobel);
             }
@@ -106,8 +105,14 @@ cv::Mat sobelFilter(const cv::Mat &frame) {
     cv::Mat sobel(frame.rows, frame.cols, CV_8UC1);
 
     // Define matrices for sobel computation
-    int gx[3][3] = {{-1, 0, 1}, {-2, 0, 2}, {-1, 0, 1}};
-    int gy[3][3] = {{-1, -2, -1}, {0, 0, 0}, {1, 2, 1}};
+    int gx[3][3] = {{-1, 0, 1}, 
+                    {-2, 0, 2},
+                     {-1, 0, 1}
+                    };
+    int gy[3][3] = {{-1, -2, -1},
+                    {0, 0, 0},
+                    {1, 2, 1}
+                    };
 
     // Loop to process interior pixels only. Skips borders.
     for (int y = 1; y < frame.rows - 1; y++) {      // Scans vertically
