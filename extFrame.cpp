@@ -33,9 +33,13 @@ int main(int argc, char* argv[]) {
     cv::Mat plain, gray, sobel;
 
     // Resizes the GUI window 
+    if (filter == "gray") {
+        name = name + "_grayscale";
+    } else if (filter == "sobel") {
+        name = name + "_sobel";
+    }
     cv::namedWindow(name, cv::WINDOW_NORMAL | cv::WINDOW_KEEPRATIO);
     cv::resizeWindow(name, 750, 500);             // Width, Height
-
 
     // Cycle through the video until the final frame is reached
     for(int i = 0; i < finalFrame; i++) {
@@ -53,11 +57,11 @@ int main(int argc, char* argv[]) {
         else {
             gray = grayscale(plain);
             if(filter.compare("gray") == 0) {
-                cv::imshow(name + "_grayscale", gray);
+                cv::imshow(name, gray);
             }
-            if(filter.compare("sobel")) {
+            if(filter.compare("sobel") == 0) {
                 sobel = sobelFilter(gray);
-                cv::imshow(name + "_sobel", sobel);
+                cv::imshow(name, sobel);
             }
         }
         
