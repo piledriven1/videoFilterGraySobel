@@ -34,12 +34,12 @@ int main(int argc, char* argv[]) {
 
     // Resizes the GUI window 
     if (filter == "gray") {
-        name = name + "_grayscale";
+        name += "_grayscale";
     } else if (filter == "sobel") {
-        name = name + "_sobel";
+        name += "_sobel";
     }
     cv::namedWindow(name, cv::WINDOW_NORMAL | cv::WINDOW_KEEPRATIO);
-    cv::resizeWindow(name, 750, 500);             // Width, Height
+    cv::resizeWindow(name, 750, 500);               // Width, Height
 
     // Cycle through the video until the final frame is reached
     for(int i = 0; i < finalFrame; i++) {
@@ -50,17 +50,24 @@ int main(int argc, char* argv[]) {
             return 1;
         }
 
+        // Allocate memory for output image (8-bit)
+        if (i == 0) {                                     // Pre-allocates the memory once
+            gray.create(plain.rows, plain.cols, CV_8UC1);
+            if (filter == "sobel") {
+                sobel.create(plain.rows, plain.cols, CV_8UC1);
+            }
+        }
+
         // Reduce the amount of processing based on user argument
         if(filter.compare("plain") == 0) {
             cv::imshow(name, plain);
-        }
-        else {
-            gray = grayscale(plain);
+        } else {
+            grayscale(plain, gray);
             if(filter.compare("gray") == 0) {
                 cv::imshow(name, gray);
             }
             if(filter.compare("sobel") == 0) {
-                sobel = sobelFilter(gray);
+                sobelFilter(gray, sobel);
                 cv::imshow(name, sobel);
             }
         }
@@ -79,9 +86,8 @@ int main(int argc, char* argv[]) {
     return 0;
 }
 
-cv::Mat grayscale(const cv::Mat &frame) {
+void grayscale(const cv::Mat &frame, cv::Mat &dest) {
     CV_Assert(frame.type() == CV_8UC3);
-    cv::Mat gray(frame.rows, frame.cols, CV_8UC1);
     // Apply grayscale using BT.709 formula
     // Y = 0.2126R + 0.7152G + 0.0722B
     // Modify BT.709 formula values to match 8-bit value range (0-255)
@@ -91,7 +97,7 @@ cv::Mat grayscale(const cv::Mat &frame) {
 
     for(int y = 0; y < frame.rows; y++) {
         const cv::Vec3b* src = frame.ptr<cv::Vec3b>(y);
-        uint8_t* dst = gray.ptr<uint8_t>(y);
+        uint8_t* dst = dest.ptr<uint8_t>(y);
 
         for(int x = 0; x < frame.cols; x++) {
             const uint8_t B = src[x][0];
@@ -103,15 +109,11 @@ cv::Mat grayscale(const cv::Mat &frame) {
                 static_cast<uint8_t>(((wB * B) + (wG * G) + (wR * R)) >> 8);
         }
     }
-
-    return gray;
 }
 
-cv::Mat sobelFilter(const cv::Mat &frame) {
+void sobelFilter(const cv::Mat &frame, cv::Mat &dest) {
     // Checks for a single channel 8-bit greyscale input
     CV_Assert(frame.type() == CV_8UC1);
-    // Allocate memory for output image (8-bit)
-    cv::Mat sobel(frame.rows, frame.cols, CV_8UC1);
 
     // Define matrices for sobel computation
     int gx[3][3] = {{-1, 0, 1}, 
@@ -143,11 +145,9 @@ cv::Mat sobelFilter(const cv::Mat &frame) {
             int magnitude = (std::abs(gxSum) + std::abs(gySum) > 255) ?
                             255 : std::abs(gxSum) + std::abs(gySum);
 
-            sobel.at<uint8_t>(y,x) = static_cast<uint8_t>(magnitude);
+            dest.at<uint8_t>(y,x) = static_cast<uint8_t>(magnitude);
         }
     }
-
-    return sobel;
 }
 
 void saveImage(const cv::Mat &frame, std::string name) {
