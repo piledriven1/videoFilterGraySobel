@@ -32,6 +32,11 @@ int main(int argc, char* argv[]) {
 
     cv::Mat plain, gray, sobel;
 
+    // Resizes the GUI window 
+    cv::namedWindow(name, cv::WINDOW_NORMAL | cv::WINDOW_KEEPRATIO);
+    cv::resizeWindow(name, 750, 500);             // Width, Height
+
+
     // Cycle through the video until the final frame is reached
     for(int i = 0; i < finalFrame; i++) {
         // Video must be read otherwise there will be no progress
