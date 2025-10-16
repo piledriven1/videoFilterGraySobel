@@ -83,11 +83,21 @@ int main(int argc, char* argv[]) {
                 cv::imshow(name, gray);
             }
 
-            // TODO: Integrate Sobel into threading!!!!!!!!!!!!!!!!!!!!!!!!!
-            // if(filter.compare("sobel") == 0) {
-            //     sobelFilter(gray, sobel);
-            //     cv::imshow(name, sobel);
-            // }
+            // Display video with a sobel filter
+            if(filter.compare("sobel") == 0) {
+                // Create threads, fill struct and apply sobel filter 
+                for (int j = 0; j < NUMTHREADS; ++j) {
+                    info[j] = threadArgs{ &gray, &sobel, plain.rows, plain.cols, j, NUMTHREADS};
+                    pthread_create(&thread[j], NULL, sobelThread, &info[j]);
+                }
+
+                // Wait for all threads to finish
+                for (int j = 0; j < NUMTHREADS; ++j) {
+                    pthread_join(thread[j], nullptr);
+                }
+
+                cv::imshow(name, sobel);                // Display frame 
+            }
         }
         
         cv::waitKey(1000 / fps);
@@ -115,7 +125,14 @@ void *grayThread(void *args) {
     return nullptr;
 }
 
-void *sobelThread(void *threadArgs) {
+void *sobelThread(void *args) {
+    threadArgs* arg = static_cast<threadArgs*>(args);
+
+    // Determines starting and ending rows (exclusive) for each thread
+    int start = (arg->tid * arg->height) / arg->totalThreads;
+    int end = ((arg->tid + 1) * arg->height) / arg->totalThreads;
+
+    sobelFilter(*arg->src, *arg->dst, start, end);
     return nullptr;
 }
 
@@ -144,7 +161,7 @@ void grayscale(const cv::Mat &frame, cv::Mat &dest, int start, int end) {
     }
 }
 
-void sobelFilter(const cv::Mat &frame, cv::Mat &dest) {
+void sobelFilter(const cv::Mat &frame, cv::Mat &dest, int start, int end) {
     // Checks for a single channel 8-bit greyscale input
     CV_Assert(frame.type() == CV_8UC1);
 
@@ -159,7 +176,7 @@ void sobelFilter(const cv::Mat &frame, cv::Mat &dest) {
                     };
 
     // Loop to process interior pixels only. Skips borders.
-    for (int y = 1; y < frame.rows - 1; y++) {      // Scans vertically
+    for (int y = start; y < end - 1; y++) {      // Scans vertically
         for (int x = 1; x < frame.cols - 1; x++) {  // Scans horizontal
             int gxSum = 0;
             int gySum = 0;

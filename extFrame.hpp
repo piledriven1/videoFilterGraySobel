@@ -26,12 +26,12 @@ struct threadArgs {
 };
 
 // Thread function prototypes
-void *grayThread(void *threadArgs);
-void *sobelThread(void *threadArgs);
+void *grayThread(void *args);
+void *sobelThread(void *args);
 
 // Function prototypes
 void grayscale(const cv::Mat &frame, cv::Mat &dest, int start, int end);
-void sobelFilter(const cv::Mat &frame, cv::Mat &dest);
+void sobelFilter(const cv::Mat &frame, cv::Mat &dest, int start, int end);
 void saveImage(const cv::Mat &frame, std::string name);
 
 #endif
