@@ -24,7 +24,7 @@ $(OUTPUT): $(OBJECTS)
 
 # Binary file handling
 %.o: %.cpp $(HEAD)
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@ -lpthread
 
 # Deletes all previously compiled executables and binaries
 clean:

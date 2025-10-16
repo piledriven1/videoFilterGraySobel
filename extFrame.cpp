@@ -41,6 +41,10 @@ int main(int argc, char* argv[]) {
     cv::namedWindow(name, cv::WINDOW_NORMAL | cv::WINDOW_KEEPRATIO);
     cv::resizeWindow(name, 750, 500);               // Width, Height
 
+    // Initialize threads
+    pthread_t thread[NUMTHREADS];
+    threadArgs info[NUMTHREADS];
+
     // Cycle through the video until the final frame is reached
     for(int i = 0; i < finalFrame; i++) {
         // Video must be read otherwise there will be no progress
@@ -62,14 +66,26 @@ int main(int argc, char* argv[]) {
         if(filter.compare("plain") == 0) {
             cv::imshow(name, plain);
         } else {
-            grayscale(plain, gray);
+            // Fill thread struct once per frame and apply gray filter 
+            for (int j = 0; j < NUMTHREADS; ++j) {
+                info[j] = threadArgs{ &plain, &gray, plain.rows, plain.cols, j, NUMTHREADS};
+                pthread_create(&thread[j], NULL, grayThread, &info[j]);
+            }
+
+            // Wait for all the threads to finish
+            for (int j = 0; j < NUMTHREADS; ++j) {
+                pthread_join(thread[j], nullptr);
+            }
+
             if(filter.compare("gray") == 0) {
                 cv::imshow(name, gray);
             }
-            if(filter.compare("sobel") == 0) {
-                sobelFilter(gray, sobel);
-                cv::imshow(name, sobel);
-            }
+
+            // TODO: Integrate Sobel into threading!!!!!!!!!!!!!!!!!!!!!!!!!
+            // if(filter.compare("sobel") == 0) {
+            //     sobelFilter(gray, sobel);
+            //     cv::imshow(name, sobel);
+            // }
         }
         
         cv::waitKey(1000 / fps);
@@ -86,7 +102,18 @@ int main(int argc, char* argv[]) {
     return 0;
 }
 
-void grayscale(const cv::Mat &frame, cv::Mat &dest) {
+void *grayThread(void *args) {
+    threadArgs* arg = static_cast<threadArgs*>(args);
+
+    // Determines starting (inclusive) and ending rows (exclusive) for each thread
+    int start = (arg->tid * arg->height) / arg->totalThreads;
+    int end = ((arg->tid + 1) * arg->height) / arg->totalThreads;
+
+    grayscale(*arg->src, *arg->dst, start, end);
+    return nullptr;
+}
+
+void grayscale(const cv::Mat &frame, cv::Mat &dest, int start, int end) {
     CV_Assert(frame.type() == CV_8UC3);
     // Apply grayscale using BT.709 formula
     // Y = 0.2126R + 0.7152G + 0.0722B
@@ -95,7 +122,7 @@ void grayscale(const cv::Mat &frame, cv::Mat &dest) {
     const int wG = 183; // 0.7152 * 256 ~ 183.0912 ~ 183
     const int wR = 54;  // 0.2126 * 256 ~ 54.4256 ~ 54
 
-    for(int y = 0; y < frame.rows; y++) {
+    for(int y = start; y < end; y++) {
         const cv::Vec3b* src = frame.ptr<cv::Vec3b>(y);
         uint8_t* dst = dest.ptr<uint8_t>(y);
 
