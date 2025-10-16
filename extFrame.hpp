@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 
+// For threads
 #include <pthread.h>
 
 // For opencv
@@ -18,15 +19,17 @@
 
 // Struct
 struct threadArgs {
-    const cv::Mat* src; // read-only input (e.g., BGR frame)
-    cv::Mat* dst;       // output (e.g., gray), pre-allocated
-    int height, width;           // Height, width
-    int tid, totalThreads;            // thread id and total threads
+    const cv::Mat* src;                 // Input
+    cv::Mat* dst;                       // Output (gray, sobel)
+    int height, width;                  // Frame dimensions: Height, width
+    int tid, totalThreads;              // Thread id and total threads
 };
 
-// Function prototypes
+// Thread function prototypes
 void *grayThread(void *threadArgs);
+void *sobelThread(void *threadArgs);
 
+// Function prototypes
 void grayscale(const cv::Mat &frame, cv::Mat &dest, int start, int end);
 void sobelFilter(const cv::Mat &frame, cv::Mat &dest);
 void saveImage(const cv::Mat &frame, std::string name);

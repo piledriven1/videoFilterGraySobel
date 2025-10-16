@@ -19,7 +19,12 @@ int main(int argc, char* argv[]) {
                     " != plain || gray || sobel" << std::endl;
         return 1;
     }
+    
+    // Declare thread variables
+    pthread_t thread[NUMTHREADS];
+    threadArgs info[NUMTHREADS];
 
+    // Declare video variables
     cv::VideoCapture video;
     std::string name = argv[1];
 
@@ -40,10 +45,6 @@ int main(int argc, char* argv[]) {
     }
     cv::namedWindow(name, cv::WINDOW_NORMAL | cv::WINDOW_KEEPRATIO);
     cv::resizeWindow(name, 750, 500);               // Width, Height
-
-    // Initialize threads
-    pthread_t thread[NUMTHREADS];
-    threadArgs info[NUMTHREADS];
 
     // Cycle through the video until the final frame is reached
     for(int i = 0; i < finalFrame; i++) {
@@ -66,17 +67,18 @@ int main(int argc, char* argv[]) {
         if(filter.compare("plain") == 0) {
             cv::imshow(name, plain);
         } else {
-            // Fill thread struct once per frame and apply gray filter 
+            // Create threads, fill struct and apply gray filter 
             for (int j = 0; j < NUMTHREADS; ++j) {
                 info[j] = threadArgs{ &plain, &gray, plain.rows, plain.cols, j, NUMTHREADS};
                 pthread_create(&thread[j], NULL, grayThread, &info[j]);
             }
 
-            // Wait for all the threads to finish
+            // Wait for all threads to finish
             for (int j = 0; j < NUMTHREADS; ++j) {
                 pthread_join(thread[j], nullptr);
             }
 
+            // Display video with a gray filter
             if(filter.compare("gray") == 0) {
                 cv::imshow(name, gray);
             }
@@ -105,11 +107,15 @@ int main(int argc, char* argv[]) {
 void *grayThread(void *args) {
     threadArgs* arg = static_cast<threadArgs*>(args);
 
-    // Determines starting (inclusive) and ending rows (exclusive) for each thread
+    // Determines starting and ending rows (exclusive) for each thread
     int start = (arg->tid * arg->height) / arg->totalThreads;
     int end = ((arg->tid + 1) * arg->height) / arg->totalThreads;
 
     grayscale(*arg->src, *arg->dst, start, end);
+    return nullptr;
+}
+
+void *sobelThread(void *threadArgs) {
     return nullptr;
 }
 
