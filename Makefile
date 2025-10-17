@@ -1,7 +1,7 @@
 # Compiler
 CC := g++
 # Compiler flags
-CFLAGS := -O0 -Wall -Werror -pedantic -g $(shell pkg-config --cflags opencv4)
+CFLAGS := -O0 -Wall -Werror -pedantic -lpthread -g $(shell pkg-config --cflags opencv4)
 # Linker flags
 LDFLAGS := $(shell pkg-config --libs opencv4)
 
@@ -24,7 +24,7 @@ $(OUTPUT): $(OBJECTS)
 
 # Binary file handling
 %.o: %.cpp $(HEAD)
-	$(CC) $(CFLAGS) -c $< -o $@ -lpthread
+	$(CC) $(CFLAGS) -c $< -o $@
 
 # Deletes all previously compiled executables and binaries
 clean:

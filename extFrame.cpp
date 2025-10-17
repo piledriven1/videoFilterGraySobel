@@ -3,19 +3,19 @@
 int main(int argc, char* argv[]) {
     if(argc < 4) {
         std::cerr << "Not enough arguments" << std::endl <<
-        "./extFrame <VIDEO_FILE> <VIDEO_TYPE> <NUM_OF_SEC>" << std::endl;
+        "./extFrame <VIDEO_FILE> <FILTER_TYPE> <NUM_OF_SEC>" << std::endl;
         return 1;
     }
     if(argc > 4) {
         std::cerr << "Too many arguments" << std::endl <<
-        "./extFrame <VIDEO_FILE> <VIDEO_TYPE> <NUM_OF_SEC>" << std::endl;
+        "./extFrame <VIDEO_FILE> <FILTER_TYPE> <NUM_OF_SEC>" << std::endl;
         return 1;
     }
     std::string filter = argv[2];
     if(filter.compare("plain") != 0 && 
             filter.compare("gray") != 0 && 
             filter.compare("sobel") != 0) {
-        std::cerr << "Invalid name" << std::endl << argv[2] <<
+        std::cerr << "Invalid filter" << std::endl << argv[2] <<
                     " != plain || gray || sobel" << std::endl;
         return 1;
     }
@@ -56,7 +56,8 @@ int main(int argc, char* argv[]) {
         }
 
         // Allocate memory for output image (8-bit)
-        if (i == 0) {                                     // Pre-allocates the memory once
+        // Pre-allocates the memory once
+        if(i == 0 && (filter.compare("gray") || filter.compare("sobel"))) {
             gray.create(plain.rows, plain.cols, CV_8UC1);
             if (filter == "sobel") {
                 sobel.create(plain.rows, plain.cols, CV_8UC1);
@@ -69,7 +70,7 @@ int main(int argc, char* argv[]) {
         } else {
             // Create threads, fill struct and apply gray filter 
             for (int j = 0; j < NUMTHREADS; ++j) {
-                info[j] = threadArgs{ &plain, &gray, plain.rows, plain.cols, j, NUMTHREADS};
+                info[j] = threadArgs{&plain, &gray, plain.rows, plain.cols, j, NUMTHREADS};
                 pthread_create(&thread[j], NULL, grayThread, &info[j]);
             }
 
@@ -87,7 +88,11 @@ int main(int argc, char* argv[]) {
             if(filter.compare("sobel") == 0) {
                 // Create threads, fill struct and apply sobel filter 
                 for (int j = 0; j < NUMTHREADS; ++j) {
-                    info[j] = threadArgs{ &gray, &sobel, plain.rows, plain.cols, j, NUMTHREADS};
+                    info[j] = threadArgs{
+                                    &gray, &sobel,
+                                    plain.rows, plain.cols,
+                                    j, NUMTHREADS
+                        };
                     pthread_create(&thread[j], NULL, sobelThread, &info[j]);
                 }
 
@@ -99,7 +104,6 @@ int main(int argc, char* argv[]) {
                 cv::imshow(name, sobel);                // Display frame 
             }
         }
-        
         cv::waitKey(1000 / fps);
     }
 
