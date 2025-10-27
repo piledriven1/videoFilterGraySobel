@@ -1,4 +1,4 @@
-# cpe442-tutorial2
+# cpe442-tutorial3
 
 ## OpenCV Tutorial
 
