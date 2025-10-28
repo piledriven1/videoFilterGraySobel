@@ -1,7 +1,7 @@
 # Compiler
 CC := g++
 # Compiler flags
-CFLAGS := -O0 -Wall -Werror -pedantic -lpthread -g $(shell pkg-config --cflags opencv4)
+CFLAGS := -O0 -Wall -Werror -pedantic -lpthread -march=armv8-a -g $(shell pkg-config --cflags opencv4)
 # Linker flags
 LDFLAGS := $(shell pkg-config --libs opencv4)
 

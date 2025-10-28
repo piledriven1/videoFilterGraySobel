@@ -7,12 +7,16 @@
 // For threads
 #include <pthread.h>
 
+// For neon
+#include <arm_neon.h>
+
 // For opencv
-#include <opencv4/opencv2/imgproc.hpp>
+#include <opencv2/opencv.hpp>
 #include <opencv4/opencv2/core.hpp>
+#include <opencv4/opencv2/highgui.hpp>
+#include <opencv4/opencv2/imgproc.hpp>
 #include <opencv4/opencv2/videoio.hpp>
 #include <opencv4/opencv2/imgcodecs.hpp>
-#include <opencv4/opencv2/highgui.hpp>
 
 // Macros
 #define NUMTHREADS 4
