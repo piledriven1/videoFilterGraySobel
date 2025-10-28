@@ -157,7 +157,7 @@ void grayscale(const cv::Mat &frame, cv::Mat &dest, int start, int end) {
         uint8_t* dst = dest.ptr<uint8_t>(y);
 
         int x = 0;
-        // NEON path: process 16 pixels per iteration
+        // Process 16 pixels per iteration
         for (; x <= cols - 16; x += 16) {
             // Load 16 interleaved BGR pixels, deinterleave into 3 vectors
             uint8x16x3_t bgr = vld3q_u8(srow + 3 * x);
@@ -186,7 +186,7 @@ void grayscale(const cv::Mat &frame, cv::Mat &dest, int start, int end) {
             vst1q_u8(dst + x, y8);
         }
 
-        // Scalar tail for leftover <16 pixels (simple, safe)
+        // Scalar tail for leftover <16 pixels
         for(; x < cols; x++) {
             const uint8_t B = srow[3*x + 0];
             const uint8_t G = srow[3*x + 1];
@@ -221,7 +221,7 @@ void sobelFilter(const cv::Mat &frame, cv::Mat &dest, int start, int end) {
         uint8_t* d = dest.ptr<uint8_t>(y);
 
         int x = 1;                            // Scans horizontal
-        // NEON path: 16-pixel wide blocks, computing |Gx|+|Gy|
+        // 16-pixel wide blocks, computing |Gx|+|Gy|
         for (; x <= cols - 17; x += 16) {
             uint8x16_t tL8 = vld1q_u8(t + (x - 1));
             uint8x16_t tC8 = vld1q_u8(t + (x + 0));
@@ -294,7 +294,6 @@ void sobelFilter(const cv::Mat &frame, cv::Mat &dest, int start, int end) {
             int magnitude = std::abs(gxSum) + std::abs(gySum);
             d[x] = static_cast<uint8_t>(magnitude > 255 ? 255 : magnitude);
         }
-        // (Leftmost/rightmost columns and top/bottom rows are skipped, as in your original loop.)
     }
 }
 
