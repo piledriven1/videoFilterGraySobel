@@ -1,5 +1,3 @@
-# cpe442-tutorial4
+# CPE442-Tutorial4
 
-## OpenCV Tutorial
-
-This program is meant to be a tutorial to using OpenCV and add grayscale or Sobel filtering to a video file.
+by Stanley To and Nash Segovia
