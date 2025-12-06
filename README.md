@@ -3,6 +3,7 @@
 ## About
 
 This repository is a collaboration between Yexall and I to create an efficient Sobel filtering program in C++ that runs on a Raspberry Pi for our embedded systems class.
+The program allows the user to filter videos with a grayscale, or implement a Sobel filter on top of the image as a video runs.
 
 ## Prerequisites
 
