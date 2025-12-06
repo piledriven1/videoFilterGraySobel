@@ -1,3 +1,7 @@
-# CPE442-Tutorial4
+# Sobel Filter
 
-by Stanley To and Nash Segovia
+## About
+
+This repository is a collaboration between @Yexall and I to create an efficient Sobel filtering program in C++.
+
+
