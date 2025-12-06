@@ -1,4 +1,4 @@
-# Sobel Filter
+# videoFilterGraySobel
 
 ## About
 
