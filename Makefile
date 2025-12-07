@@ -1,13 +1,13 @@
 # Compiler
 CC := g++
 # Compiler flags
-CFLAGS := -O3 -Wall -Werror -pedantic -lpthread -lpapi -march=armv8-a -g -isystem /usr/include/opencv4
+CFLAGS := -O3 -Wall -Werror -pedantic -lpthread -march=armv8-a -g -isystem /usr/include/opencv4
 # Linker flags
-LDFLAGS := $(shell pkg-config --libs opencv4) -lpapi
+LDFLAGS := $(shell pkg-config --libs opencv4)
 
 # Name of the compiled program
-MAIN := extFrame
-SOURCES := $(wildcard *.cpp) $(wildcard *.c)
+MAIN := filter
+SOURCES := $(wildcard *.cpp)
 OBJECTS := $(SOURCES:.cpp=.o)
 # Binary output name
 OUTPUT := $(MAIN)
@@ -28,4 +28,4 @@ $(OUTPUT): $(OBJECTS)
 
 # Deletes all previously compiled executables and binaries
 clean:
-	rm *.o $(MAIN)
+	rm -f *.o $(MAIN)
