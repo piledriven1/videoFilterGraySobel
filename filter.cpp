@@ -1,7 +1,6 @@
 #include "filter.hpp"
 
 int main(int argc, char* argv[]) {
-    // Validate arguments
     if (argc != 3) {
         std::cerr << "Usage: " << argv[0]
                     <<" <VIDEO_FILE> <FILTER_TYPE>" << std::endl
@@ -56,7 +55,7 @@ int main(int argc, char* argv[]) {
     // Pre-allocate buffers after reading first frame to get dimensions
     cv::Mat firstFrameMat;
     if (!video.read(firstFrameMat) || firstFrameMat.empty()) {
-        std::cerr << "Error: Could not read first frame\n";
+        std::cerr << "Error: Could not read first frame" << std::endl;
         return 1;
     }
 
@@ -83,12 +82,8 @@ int main(int argc, char* argv[]) {
             // Set up thread arguments for grayscale
             for (int t = 0; t < NUMTHREADS; ++t) {
                 threadArgs[t] = {
-                    &buf.plain,
-                    &buf.gray,
-                    frameHeight,
-                    frameWidth,
-                    t,
-                    NUMTHREADS
+                    &buf.plain, &buf.gray, frameHeight,
+                    frameWidth, t, NUMTHREADS
                 };
             }
 
@@ -98,7 +93,8 @@ int main(int argc, char* argv[]) {
             // If sobel, also apply sobel filter
             if (filter == FilterType::SOBEL) {
                 for (int t = 0; t < NUMTHREADS; ++t) {
-                    threadArgs[t] = {&buf.gray, &buf.sobel, frameHeight,
+                    threadArgs[t] = {
+                        &buf.gray, &buf.sobel, frameHeight,
                         frameWidth, t, NUMTHREADS};
                 }
                 threadPool.dispatch(sobelThread, threadArgs);
