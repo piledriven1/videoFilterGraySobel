@@ -77,6 +77,8 @@ int main(int argc, char* argv[]) {
             }
         }
 
+        auto t0 = std::chrono::steady_clock::now();             // Start timer
+
         // Process current frame based on filter type
         if (filter != FilterType::PLAIN) {
             // Set up thread arguments for grayscale
@@ -100,6 +102,11 @@ int main(int argc, char* argv[]) {
                 threadPool.dispatch(sobelThread, threadArgs);
             }
         }
+
+        auto t1 = std::chrono::steady_clock::now();             // End timer
+        std::chrono::duration<double, std::milli> ms = t1 - t0;
+        std::printf("%s filter took %.3f ms\n",
+                    filterStr.c_str(), ms.count());
 
         // Display previous frame (double buffering) or current if first frame
         if (!firstFrame) {
